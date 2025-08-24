@@ -6,18 +6,19 @@ const GameSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
-
   questionType: {
     type: String,
-    enum: ["truth", "dare", "random", "ai", "inbuilt"],
+    enum: ["truth", "dare", "random"],
     default: "random",
   },
-
+  questionTypeFrom: {
+    type: String,
+    enum: ["ai", "inbuilt"],
+  },
   currentTurn: {
     type: Number,
     default: 0,
   },
-
   history: [
     {
       player: String,
@@ -27,18 +28,15 @@ const GameSchema = new mongoose.Schema({
       createdAt: { type: Date, default: Date.now },
     },
   ],
-
   isAi: {
     type: Boolean,
     default: false,
   },
-
   status: {
     type: String,
     enum: ["waiting", "in-progress", "finished"],
     default: "waiting",
   },
-
   Created_at: {
     type: Date,
     default: Date.now,
@@ -52,9 +50,10 @@ GameSchema.methods.AiQuestion = async function () {
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
   async function truthQuestion() {
-    const Given = "Give any truth question which we can ask just give one question anything more";
+    const Given =
+      "Give any truth question which we can ask just give one question anything more";
     const userPrompt = "";
-    const prompt = Given.concat(userPrompt)
+    const prompt = Given.concat(userPrompt);
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
@@ -62,9 +61,10 @@ GameSchema.methods.AiQuestion = async function () {
     return text;
   }
   async function dareQuestion() {
-    const Given = "Give any dare question which we can ask just give one question anything more";
+    const Given =
+      "Give any dare question which we can ask just give one question anything more";
     const userPrompt = "";
-    const prompt = Given.concat(userPrompt)
+    const prompt = Given.concat(userPrompt);
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const text = response.text();
@@ -83,8 +83,8 @@ GameSchema.methods.AiQuestion = async function () {
     } else {
       text = await dareQuestion();
     }
-  };
-  return {type, text};
+  }
+  return { type, text };
 };
 
 GameSchema.methods.InbuiltQuestion = async function () {
@@ -131,5 +131,7 @@ GameSchema.methods.InbuiltQuestion = async function () {
   }
   console.log(type);
   console.log(question);
-  return {type, question};
+  return { type, question };
 };
+
+export const GameLogic = mongoose.model("GameType",GameSchema);
