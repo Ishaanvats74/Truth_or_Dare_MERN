@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const GameSchema = new mongoose.Schema({
   names: {
@@ -44,7 +45,47 @@ const GameSchema = new mongoose.Schema({
   },
 });
 
-GameSchema.methods.AiQuestion = async function (params) {};
+GameSchema.methods.AiQuestion = async function () {
+  let type = this.questionType;
+  const API_KEY = process.env.GEMINI_API_KEY;
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+  async function truthQuestion() {
+    const Given = "Give any truth question which we can ask just give one question anything more";
+    const userPrompt = "";
+    const prompt = Given.concat(userPrompt)
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    console.log(text);
+    return text;
+  }
+  async function dareQuestion() {
+    const Given = "Give any dare question which we can ask just give one question anything more";
+    const userPrompt = "";
+    const prompt = Given.concat(userPrompt)
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    console.log(text);
+    return text;
+  }
+  let text;
+  if (type == "truth") {
+    text = await truthQuestion();
+  } else if (type == "dare") {
+    text = await dareQuestion();
+  } else {
+    type = Math.random() < 0.5 ? "truth" : "dare";
+    if (type == "truth") {
+      text = await truthQuestion();
+    } else {
+      text = await dareQuestion();
+    }
+  };
+  return {type, text};
+};
 
 GameSchema.methods.InbuiltQuestion = async function () {
   const truthQuestion = [
@@ -82,12 +123,13 @@ GameSchema.methods.InbuiltQuestion = async function () {
   } else {
     type = Math.random() < 0.5 ? "truth" : "dare";
     if (type == "truth") {
-      question = truthQuestion[Math.floor(Math.random() * truthQuestion.length)];
+      question =
+        truthQuestion[Math.floor(Math.random() * truthQuestion.length)];
     } else {
       question = dareQuestion[Math.floor(Math.random() * dareQuestion.length)];
     }
   }
   console.log(type);
   console.log(question);
-  return type, question;
+  return {type, question};
 };
