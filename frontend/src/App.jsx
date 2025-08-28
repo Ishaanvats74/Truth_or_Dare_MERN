@@ -10,7 +10,7 @@ function App() {
 
   useEffect(() => {
     const getUser = async () => {
-      await axios.get("http://localhost:4000");
+      await axios.get("http://localhost:4000"), { withCredentials: true };
     };
 
     getUser();
