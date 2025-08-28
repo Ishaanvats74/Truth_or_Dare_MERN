@@ -52,11 +52,11 @@ if (questionTypeFrom == "ai") {
 
     async function truthQuestion() {
       const Given =
-        "Give any truth question which we can ask just give one question anything more";
+        "Give any truth question which we can ask just give one question anything more ";
       const userPrompt = "";
       const prompt = Given.concat(userPrompt);
       const result = await model.generateContent(prompt);
-      const response = await result.response;
+      const response = result.response;
       const text = response.text();
       console.log(text);
       return text;
@@ -67,7 +67,7 @@ if (questionTypeFrom == "ai") {
       const userPrompt = "";
       const prompt = Given.concat(userPrompt);
       const result = await model.generateContent(prompt);
-      const response = await result.response;
+      const response =  result.response;
       const text = response.text();
       console.log(text);
       return text;

@@ -2,7 +2,7 @@ import ErrorHandler from "../middlewares/error.js";
 import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import { Game } from "../models/Game.js";
 
-export const GameCycle = catchAsyncError(async (req,res,next) => {
+export const startGame = catchAsyncError(async (req,res,next) => {
     try {
         if (game == "single") {
             const {players,questionTypeFrom,questionType } = req.body;
