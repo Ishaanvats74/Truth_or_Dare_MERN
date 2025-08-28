@@ -1,14 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import axios from "axios";
 
 function App() {
+  const [startGame,setStartGame] = useState(false);
+  
   useEffect(()=>{
     const getUser = async () => {
       await axios.get("http://localhost:4000")
     };
     getUser();
+
   })
+
+  const handleStartGame = async ()=>{
+    setStartGame(true);
+  }
+  const closePopup = () => {
+    setStartGame(false);
+  };
   return (
     <>
       <div className="flex flex-col bg-black xs:h-auto md:min-h-screen space-y-16">
@@ -28,7 +38,7 @@ function App() {
           </span>
         </div>
         <div className="flex justify-center">
-          <button className="py-5 bg-gradient-to-r from-blue-400/40 to-white/40  rounded-full px-25 text-3xl text-white/80 font-bold">🎯 Start Game</button>
+          <button onClick={()=>handleStartGame()} className="py-5 bg-gradient-to-r from-blue-400/40 to-white/40  rounded-full px-25 text-3xl text-white/80 font-bold">🎯 Start Game</button>
         </div>
         <div className=" justify-around grid grid-rows-3 space-y-10 md:flex md:space-x-10 px-5">
           <div className="p-6 bg-white/15 backdrop-blur-lg text-center space-y-4 border-white/40 rounded-2xl border  h-60">
@@ -51,6 +61,31 @@ function App() {
           <div>Join millions of players worldwide * No downloads required * Instant fun</div>
         </footer>
       </div>
+
+      {startGame&&(
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50" onClick={closePopup}>
+            <div className="bg-white rounded-2xl p-8 w-96 text-center space-y-6 shadow-2xl">
+              <h2 className="text-2xl font-bold text-black">🎉 Let’s Play!</h2>
+              <p className="text-gray-700">
+                Choose a mode to start: Truth or Dare
+              </p>
+              <div className="flex justify-around">
+                <button className="px-6 py-3 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition">
+                  Custom Game
+                </button>
+                <button className="px-6 py-3 rounded-lg bg-pink-500 text-white font-semibold hover:bg-pink-600 transition">
+                  Online Game
+                </button>
+              </div>
+              <button
+                onClick={closePopup}
+                className="mt-4 text-sm text-gray-500 hover:text-gray-800"
+              >
+                ❌ Close
+              </button>
+            </div>
+          </div>
+      )}
     </>
   );
 }
