@@ -37,7 +37,6 @@ const CustomGame = () => {
       const res = await axios.post("http://localhost:4000/api/game/startGame", {
         names,
         questionTypeFrom: "inbuilt",
-        questionType: "random",
       });
       localStorage.setItem("gameId", res.data.gameId);
       localStorage.setItem("players", JSON.stringify(res.data.players));
@@ -49,8 +48,8 @@ const CustomGame = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-black p-6">
-      <div className="flex flex-col gap-3 mb-6 bg-white/10 p-10 rounded-2xl justify-center items-center w-96">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-black p-6 overflow-hidden">
+      <div className="flex flex-col gap-3 mb-6 bg-white/10 p-10 rounded-2xl justify-center items-center md:w-96">
         <input
           type="text"
           value={name}
@@ -80,7 +79,7 @@ const CustomGame = () => {
         {names.map((item, index) => (
           <div
             key={index}
-            className="bg-black px-4 py-2 rounded-lg shadow border border-gray-200 flex justify-between items-center"
+            className="bg-black px-4 py-2 rounded-lg shadow border border-gray-200 flex justify-between items-center overflow-y-scroll"
           >
             <div className="text-xl text-white">{item}</div>
             <button

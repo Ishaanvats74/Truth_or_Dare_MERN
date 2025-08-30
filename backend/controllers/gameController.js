@@ -10,7 +10,6 @@ export const startGame = catchAsyncError(async (req, res, next) => {
     }
     const game = await Game.create({
       names: names,
-      questionType: questionType || "random",
       questionTypeFrom: questionTypeFrom || "inbuilt",
       history: [],
     });
@@ -28,20 +27,20 @@ export const startGame = catchAsyncError(async (req, res, next) => {
 export const customGame = catchAsyncError(async (req, res, next) => {
   try {
     const { gameId } = req.params;
-    const { currentPlayer,type } = req.body;
+    const { currentPlayer,questionType } = req.body;
     const game = await Game.findById(gameId);
     if (!game) return next(new ErrorHandler("Game not found", 404));
-
+    console.log(questionType)
     let result;
     if (game.questionTypeFrom === "ai") {
-      result = await game.AiQuestion(type);
+      result = await game.AiQuestion(questionType);
     } else {
-      result = await game.InbuiltQuestion(type);
+      result = await game.InbuiltQuestion(questionType);
     }
 
     game.history.push({
       player: currentPlayer,
-      type: result.type,
+      type: questionType,
       question: result.question,
     });
 
@@ -50,7 +49,7 @@ export const customGame = catchAsyncError(async (req, res, next) => {
     res.status(200).json({
       success: true,
       player: currentPlayer,
-      type: result.type,
+      type: result.questionType,
       question: result.question,
     });
   } catch (error) {

@@ -70,8 +70,9 @@ const WheelPage = () => {
     setShowPlayerName(true);
   };
 
-  const fetchQuestion = async (type) => {
+  const fetchQuestion = async (questionType) => {
     try {
+      console.log(questionType);
       const gameId = localStorage.getItem("gameId");
       console.log(gameId);
       if (!gameId) return;
@@ -79,7 +80,7 @@ const WheelPage = () => {
         `http://localhost:4000/api/game/customGame/${gameId}`,
         {
           currentPlayer: playerName,
-          type,
+          questionType,
         }
       );
       setQuestion(res.data.question);
