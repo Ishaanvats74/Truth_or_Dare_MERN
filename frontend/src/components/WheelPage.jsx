@@ -41,9 +41,7 @@ const WheelPage = ({switchMode}) => {
 
   useEffect(() => {
     const gameId = localStorage.getItem("gameId");
-    if (gameId) {
-      console.log(gameId);
-    } else {
+    if (!gameId) {
       console.log("No gameId found!");
       return;
     }
@@ -74,9 +72,7 @@ const WheelPage = ({switchMode}) => {
     try {
       const questionTypeFrom = switchMode ? "ai" : "inbuilt";
       let userPrompt = localStorage.getItem("userPrompt") || "";
-      console.log(questionType);
       const gameId = localStorage.getItem("gameId");
-      console.log(gameId);
       if (!gameId) return;
       const res = await axios.post(
         `http://localhost:4000/api/game/customGame/${gameId}`,
