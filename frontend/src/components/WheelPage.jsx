@@ -31,7 +31,7 @@ const colors = [
   "#00BFFF",
 ];
 
-const WheelPage = () => {
+const WheelPage = ({switchMode}) => {
   const [names, setNames] = useState([]);
   const [mustSpin, setMustSpin] = useState(false);
   const [playerNumber, setPlayerNumber] = useState(0);
@@ -72,6 +72,8 @@ const WheelPage = () => {
 
   const fetchQuestion = async (questionType) => {
     try {
+      const questionTypeFrom = switchMode ? "ai" : "inbuilt";
+      let userPrompt = localStorage.getItem("userPrompt") || "";
       console.log(questionType);
       const gameId = localStorage.getItem("gameId");
       console.log(gameId);
@@ -81,6 +83,8 @@ const WheelPage = () => {
         {
           currentPlayer: playerName,
           questionType,
+          questionTypeFrom,
+          userPrompt,
         }
       );
       setQuestion(res.data.question);
@@ -91,6 +95,7 @@ const WheelPage = () => {
 
   return (
     <div>
+
       <div className="flex flex-col md:flex-row items-center md:space-x-5 space-y-3">
         {names.length > 0 && (
           <Wheel

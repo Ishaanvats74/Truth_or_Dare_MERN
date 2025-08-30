@@ -4,13 +4,12 @@ import { Game } from "../models/Game.js";
 
 export const startGame = catchAsyncError(async (req, res, next) => {
   try {
-    const { names, questionTypeFrom, questionType } = req.body;
+    const { names } = req.body;
     if (!names || names.length < 2) {
       return next(new ErrorHandler("At least 2 Player are required", 400));
     }
     const game = await Game.create({
       names: names,
-      questionTypeFrom: questionTypeFrom || "inbuilt",
       history: [],
     });
     res.status(200).json({
@@ -27,21 +26,26 @@ export const startGame = catchAsyncError(async (req, res, next) => {
 export const customGame = catchAsyncError(async (req, res, next) => {
   try {
     const { gameId } = req.params;
-    const { currentPlayer,questionType } = req.body;
+    const { currentPlayer, questionType, userPrompt = "", questionTypeFrom = "inbuilt" } = req.body;
     const game = await Game.findById(gameId);
     if (!game) return next(new ErrorHandler("Game not found", 404));
-    console.log(questionType)
+
     let result;
-    if (game.questionTypeFrom === "ai") {
-      result = await game.AiQuestion(questionType);
+    let questionText;
+    if (questionTypeFrom === "ai") {
+      result = await game.AiQuestion(questionType, userPrompt);
+      questionText = result.text;
     } else {
       result = await game.InbuiltQuestion(questionType);
+      questionText = result.question;
     }
 
     game.history.push({
       player: currentPlayer,
       type: questionType,
-      question: result.question,
+      question: questionText,
+      questionTypeFrom,
+      aiPrompt:  userPrompt,
     });
 
     await game.save();
@@ -49,10 +53,11 @@ export const customGame = catchAsyncError(async (req, res, next) => {
     res.status(200).json({
       success: true,
       player: currentPlayer,
-      type: result.questionType,
-      question: result.question,
+      type: result.type,
+      question: questionText,
     });
   } catch (error) {
     next(error);
   }
 });
+

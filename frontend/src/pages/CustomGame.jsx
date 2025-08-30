@@ -13,7 +13,6 @@ const CustomGame = () => {
     setNames([...names, name]);
     setName("");
     if (names.length >= 1) {
-      console.log("hello");
       setStartButton(true);
     }
   };
@@ -36,7 +35,6 @@ const CustomGame = () => {
     try {
       const res = await axios.post("http://localhost:4000/api/game/startGame", {
         names,
-        questionTypeFrom: "inbuilt",
       });
       localStorage.setItem("gameId", res.data.gameId);
       localStorage.setItem("players", JSON.stringify(res.data.players));

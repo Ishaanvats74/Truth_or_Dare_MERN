@@ -7,16 +7,16 @@ const GameSchema = new mongoose.Schema({
     required: true,
   },
 
-  questionTypeFrom: {
-    type: String,
-    enum: ["ai", "inbuilt"],
-  },
   currentTurn: {
     type: Number,
     default: 0,
   },
   history: [
     {
+      questionTypeFrom: {
+        type: String,
+        enum: ["ai", "inbuilt"],
+      },
       player: String,
       type: { type: String, enum: ["truth", "dare"] },
       question: String,
@@ -27,65 +27,75 @@ const GameSchema = new mongoose.Schema({
         enum: ["truth", "dare", "random"],
         default: "random",
       },
+      aiPrompt:{type: [String]},
+      aiHistory:{type: [String]},
+      isAi: {
+        type: Boolean,
+        default: false,
+      },
     },
   ],
-  isAi: {
-    type: Boolean,
-    default: false,
-  },
   status: {
     type: String,
     enum: ["waiting", "in-progress", "finished"],
     default: "waiting",
   },
-  Created_at: {
+  CreatedAt: {
     type: Date,
     default: Date.now,
-  },
+  }
 });
 
-GameSchema.methods.AiQuestion = async function (questionType) {
+GameSchema.methods.AiQuestion = async function (questionType,prompt="") {
   let type = questionType;
-
+  let userPrompt = prompt;
   const API_KEY = process.env.GEMINI_API_KEY;
+   if (!API_KEY) {
+    throw new Error("GEMINI_API_KEY not found in environment variables");
+  }
   const genAI = new GoogleGenerativeAI(API_KEY);
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-  async function truthQuestion() {
+const truthQuestion = async (userPrompt) => {
     const Given =
-      "Give any truth question which we can ask just give one question anything more ";
-    const userPrompt = "";
-    const prompt = Given.concat(userPrompt);
+      `Give any truth question which we can ask just give one question anything more should be under 15 words or max 20 words, It should be different from this history question and Prompt ${this.history.map(h => h.aiHistory && h.aiPrompt || [])}`;
+    const usersPrompt = userPrompt;
+    const prompt = Given.concat(usersPrompt);
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
-    console.log(text);
+    this.history.push({
+      aiHistory:text
+    })
+    await this.save();
+
+    
     return text;
   }
-  async function dareQuestion() {
+  const dareQuestion = async (userPrompt) =>{
     const Given =
-      "Give any dare question which we can ask just give one question anything more";
-    const userPrompt = "";
-    const prompt = Given.concat(userPrompt);
+      `Give any dare question which we can ask just give one question anything more should be under 15 words or max 20 words, It should be different from this history question and Prompt ${this.history.map(h => h.aiHistory && h.aiPrompt  || [])}`;
+    const usersPrompt = userPrompt;
+    const prompt = Given.concat(usersPrompt);
     const result = await model.generateContent(prompt);
     const response = result.response;
     const text = response.text();
-    console.log(text);
     return text;
   }
   let text;
   if (type == "truth") {
-    text = await truthQuestion();
+    text = await truthQuestion(userPrompt);
   } else if (type == "dare") {
-    text = await dareQuestion();
+    text = await dareQuestion(userPrompt);
   } else {
     type = Math.random() < 0.5 ? "truth" : "dare";
     if (type == "truth") {
-      text = await truthQuestion();
+      text = await truthQuestion(userPrompt);
     } else {
-      text = await dareQuestion();
+      text = await dareQuestion(userPrompt);
     }
   }
+
   return { type, text };
 };
 
@@ -133,9 +143,6 @@ let type = questionType;
       question = dareQuestion[Math.floor(Math.random() * dareQuestion.length)];
     }
   }
-  console.log(questionType)
-  console.log(type);
-  console.log(question);
   return { type, question };
 };
 
