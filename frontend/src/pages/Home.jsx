@@ -20,7 +20,7 @@ const Home = () => {
   };
 
   const handleCustomGame = () => {
-    navigate("/pages/CustomGame");
+    navigate("/CustomGame");
   };
 
   const handleOnlineGame = () => {

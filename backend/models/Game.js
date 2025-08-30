@@ -43,7 +43,7 @@ const GameSchema = new mongoose.Schema({
   },
 });
 
-if (questionTypeFrom == "ai") {
+
   GameSchema.methods.AiQuestion = async function () {
     let type = this.questionType;
     const API_KEY = process.env.GEMINI_API_KEY;
@@ -87,7 +87,8 @@ if (questionTypeFrom == "ai") {
     }
     return { type, text };
   };
-} else {
+
+  
   GameSchema.methods.InbuiltQuestion = async function () {
     const truthQuestion = [
       "What’s the most embarrassing thing you’ve ever done in public?",
@@ -136,6 +137,6 @@ if (questionTypeFrom == "ai") {
     console.log(question);
     return { type, question };
   };
-}
+
 
 export const Game = mongoose.model("GameType", GameSchema);
